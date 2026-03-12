@@ -19,3 +19,26 @@ class ShipmentListCreate(APIView):
             return Response(ShipmentSerializer(shipment).data, status=201)
         return Response(serializer.errors, status=400)
 
+
+class ShipmentDetail(APIView):
+    def get(self, request, pk):
+        try:
+            shipment = Shipment.objects.get(pk=pk)
+            return Response(ShipmentSerializer(shipment).data)
+        except Shipment.DoesNotExist:
+            return Response({"error": "Not found"}, status=404)
+
+    def patch(self, request, pk):
+        try:
+            shipment = Shipment.objects.get(pk=pk)
+        except Shipment.DoesNotExist:
+            return Response({"error": "Not found"}, status=404)
+        status_val = request.data.get("status")
+        shipper_name = request.data.get("shipper_name")
+        if status_val is not None:
+            shipment.status = status_val
+        if shipper_name is not None:
+            shipment.shipper_name = shipper_name
+        shipment.save()
+        return Response(ShipmentSerializer(shipment).data)
+

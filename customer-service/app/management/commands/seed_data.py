@@ -18,5 +18,5 @@ class Command(BaseCommand):
         for data in customers:
             Customer.objects.get_or_create(
                 email=data["email"],
-                defaults={"name": data["name"]},
+                defaults={"name": data["name"], "password": "pass"},
             )

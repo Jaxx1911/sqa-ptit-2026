@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login — BookStore</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { theme: { extend: { colors: { primary: '#4f46e5', 'primary-dark': '#4338ca' } } } }
+    </script>
+</head>
+<body class="bg-slate-100 min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+        <a href="/books/" class="inline-flex items-center gap-2 text-primary font-bold text-lg mb-8">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.966 8.966 0 00-6 2.292m0-14.25v14.25" />
+            </svg>
+            BookStore
+        </a>
+        <div class="bg-white rounded-2xl shadow-lg border border-slate-200 p-8">
+            <h1 class="text-2xl font-bold text-slate-900 mb-2">Đăng nhập</h1>
+            {% if error %}
+            <div class="mb-4 p-3 rounded-lg bg-red-50 border border-red-100 text-red-700 text-sm">{{ error }}</div>
+            {% endif %}
+            <form method="post" action="{% url 'login' %}" class="space-y-4">
+                {% csrf_token %}
+                <div>
+                    <label for="email" class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                    <input type="email" id="email" name="email" required
+                           class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/40"
+                           placeholder="vd: alice@example.com" />
+                </div>
+                <div>
+                    <label for="password" class="block text-sm font-medium text-slate-700 mb-1">Mật khẩu</label>
+                    <input type="password" id="password" name="password" required
+                           class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/40"
+                           placeholder="••••••••" />
+                </div>
+                <button type="submit"
+                        class="w-full bg-primary text-white font-medium py-2.5 rounded-xl hover:bg-primary-dark transition-colors">
+                    Đăng nhập
+                </button>
+            </form>
+            <p class="mt-4 text-center text-slate-500 text-sm">
+                Chưa có tài khoản? <a href="{% url 'register' %}" class="text-primary font-medium hover:underline">Đăng ký</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

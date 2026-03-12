@@ -23,57 +23,64 @@
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
 
-    <!-- Navbar -->
     <nav class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
-                <!-- Logo -->
-                <a href="/books/" class="flex items-center gap-2 font-bold text-xl text-primary">
+                <a href="{% if is_authenticated %}/{% else %}/books/{% endif %}" class="flex items-center gap-2 font-bold text-xl text-primary">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.966 8.966 0 00-6 2.292m0-14.25v14.25" />
                     </svg>
                     BookStore
                 </a>
 
-                <!-- Nav links -->
-                <div class="flex items-center gap-6">
-                    <a href="/books/" class="text-sm font-medium text-slate-600 hover:text-primary transition-colors">
-                        Books
-                    </a>
+                <div class="flex items-center gap-4 sm:gap-6 flex-wrap">
+                    <a href="/books/" class="text-sm font-medium text-slate-600 hover:text-primary transition-colors">Books</a>
+
+                    {% if is_customer %}
                     <a href="/cart/{{ customer_id }}/" class="flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-primary transition-colors">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                         </svg>
-                        My Cart
+                        Cart
                     </a>
-                    <a href="/orders/" class="text-sm font-medium text-slate-600 hover:text-primary transition-colors">
-                        Orders
-                    </a>
+                    <a href="/orders/" class="text-sm font-medium text-slate-600 hover:text-primary transition-colors">Orders</a>
+                    {% endif %}
 
-                    <!-- Customer selector -->
-                    <form action="/set-customer/" method="post" class="flex items-center gap-2">
-                        {% csrf_token %}
-                        <label class="text-xs text-slate-400 font-medium">Customer ID:</label>
-                        <input type="number" name="customer_id" value="{{ customer_id }}" min="1"
-                               class="w-16 text-sm border border-slate-300 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary/40" />
-                        <button type="submit" class="text-xs bg-primary text-white px-3 py-1 rounded-lg hover:bg-primary-dark transition-colors">
-                            Switch
-                        </button>
-                    </form>
+                    {% if is_staff_books %}
+                    <a href="/books/" class="text-sm font-medium text-slate-600 hover:text-primary transition-colors">Store</a>
+                    <a href="/staff/books/" class="text-sm font-medium text-slate-600 hover:text-primary transition-colors">Manage Books</a>
+                    {% endif %}
+
+                    {% if is_shipper %}
+                    <a href="/books/" class="text-sm font-medium text-slate-600 hover:text-primary transition-colors">Store</a>
+                    <a href="{% url 'shipper_dashboard' %}" class="text-sm font-medium text-slate-600 hover:text-primary transition-colors">My Deliveries</a>
+                    {% endif %}
+
+                    {% if is_manager %}
+                    <a href="/manager/orders/" class="text-sm font-medium text-slate-600 hover:text-primary transition-colors">Orders</a>
+                    <a href="/manager/users/" class="text-sm font-medium text-slate-600 hover:text-primary transition-colors">Users</a>
+                    <a href="/manager/payments/" class="text-sm font-medium text-slate-600 hover:text-primary transition-colors">Payments</a>
+                    {% endif %}
+
+                    {% if not is_authenticated %}
+                    <a href="{% url 'login' %}" class="text-sm font-medium text-slate-600 hover:text-primary transition-colors">Login</a>
+                    <a href="{% url 'register' %}" class="text-sm font-medium bg-primary text-white px-3 py-1.5 rounded-lg hover:bg-primary-dark transition-colors">Register</a>
+                    {% else %}
+                    <span class="text-xs text-slate-500">{{ user_name }} ({{ user_role }}{% if staff_role %} / {{ staff_role }}{% endif %})</span>
+                    <a href="{% url 'logout' %}" class="text-sm font-medium text-slate-600 hover:text-red-600 transition-colors">Logout</a>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </nav>
 
-    <!-- Page content -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Footer -->
     <footer class="bg-white border-t border-slate-200 mt-auto">
         <div class="max-w-7xl mx-auto px-6 py-4 text-center text-sm text-slate-400">
-            &copy; 2026 BookStore Microservices &mdash; Built with Django
+            &copy; 2026 BookStore Microservices
         </div>
     </footer>
 

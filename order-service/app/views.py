@@ -14,6 +14,13 @@ SHIP_SERVICE_URL = "http://ship-service:8000"
 class OrderListCreate(APIView):
     def get(self, request):
         orders = Order.objects.all().order_by("-created_at")
+        customer_id = request.query_params.get("customer_id")
+        if customer_id is not None:
+            try:
+                customer_id = int(customer_id)
+                orders = orders.filter(customer_id=customer_id)
+            except (ValueError, TypeError):
+                pass
         serializer = OrderSerializer(orders, many=True)
         return Response(serializer.data)
 
@@ -95,4 +102,15 @@ class OrderDetail(APIView):
             return Response(OrderSerializer(order).data)
         except Order.DoesNotExist:
             return Response({"error": "Order not found"}, status=404)
+
+    def patch(self, request, order_id):
+        try:
+            order = Order.objects.get(id=order_id)
+        except Order.DoesNotExist:
+            return Response({"error": "Order not found"}, status=404)
+        status_val = request.data.get("status")
+        if status_val is not None:
+            order.status = status_val
+            order.save()
+        return Response(OrderSerializer(order).data)
 

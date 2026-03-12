@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Shipper — My Deliveries{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-slate-900">Shipper Dashboard</h1>
+    <p class="text-slate-500 mt-1">Đơn chưa giao và đơn của bạn</p>
+</div>
+
+<div class="space-y-8">
+    <section class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <h2 class="px-6 py-4 bg-amber-50 border-b border-amber-100 font-semibold text-slate-800">Đơn đã xác nhận, chưa giao cho ai</h2>
+        {% if unassigned %}
+        <table class="w-full">
+            <thead>
+                <tr class="bg-slate-50 border-b border-slate-100 text-left text-xs font-semibold text-slate-500 uppercase">
+                    <th class="px-6 py-3">Shipment ID</th>
+                    <th class="px-4 py-3">Order ID</th>
+                    <th class="px-4 py-3">Total</th>
+                    <th class="px-4 py-3">Shipping</th>
+                    <th class="px-6 py-3"></th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-50">
+                {% for s in unassigned %}
+                <tr class="hover:bg-slate-50/50">
+                    <td class="px-6 py-4 font-mono">#{{ s.id }}</td>
+                    <td class="px-4 py-4 font-mono">#{{ s.order_id }}</td>
+                    <td class="px-4 py-4">${{ s.order_info.total_amount|default:"—" }}</td>
+                    <td class="px-4 py-4">{{ s.shipping_method }}</td>
+                    <td class="px-6 py-4">
+                        <form action="{% url 'shipper_claim' s.id %}" method="post" class="inline">{% csrf_token %}
+                            <button type="submit" class="bg-indigo-600 text-white text-sm px-3 py-1.5 rounded-lg hover:bg-indigo-700">Nhận đơn</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="px-6 py-8 text-slate-500 text-center">Không có đơn nào chưa giao.</p>
+        {% endif %}
+    </section>
+
+    <section class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <h2 class="px-6 py-4 bg-green-50 border-b border-green-100 font-semibold text-slate-800">Đơn của tôi</h2>
+        {% if my_shipments %}
+        <table class="w-full">
+            <thead>
+                <tr class="bg-slate-50 border-b border-slate-100 text-left text-xs font-semibold text-slate-500 uppercase">
+                    <th class="px-6 py-3">Shipment ID</th>
+                    <th class="px-4 py-3">Order ID</th>
+                    <th class="px-4 py-3">Total</th>
+                    <th class="px-4 py-3">Status</th>
+                    <th class="px-4 py-3">Shipping</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-50">
+                {% for s in my_shipments %}
+                <tr class="hover:bg-slate-50/50">
+                    <td class="px-6 py-4 font-mono">#{{ s.id }}</td>
+                    <td class="px-4 py-4 font-mono">#{{ s.order_id }}</td>
+                    <td class="px-4 py-4">${{ s.order_info.total_amount|default:"—" }}</td>
+                    <td class="px-4 py-4"><span class="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-700">{{ s.status }}</span></td>
+                    <td class="px-4 py-4">{{ s.shipping_method }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="px-6 py-8 text-slate-500 text-center">Bạn chưa nhận đơn nào.</p>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

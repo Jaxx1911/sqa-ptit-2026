@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Manager — Payment history{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-8">
+    <h1 class="text-3xl font-bold text-slate-900">Payment history</h1>
+    <div class="flex gap-4">
+        <a href="/manager/orders/" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">Orders</a>
+        <a href="/manager/users/" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">Users</a>
+    </div>
+</div>
+
+<div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+    <table class="w-full">
+        <thead>
+            <tr class="bg-slate-50 border-b border-slate-100">
+                <th class="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase">ID</th>
+                <th class="text-left px-4 py-4 text-xs font-semibold text-slate-500 uppercase">Order ID</th>
+                <th class="text-right px-4 py-4 text-xs font-semibold text-slate-500 uppercase">Amount</th>
+                <th class="text-left px-4 py-4 text-xs font-semibold text-slate-500 uppercase">Method</th>
+                <th class="text-left px-4 py-4 text-xs font-semibold text-slate-500 uppercase">Status</th>
+                <th class="text-left px-4 py-4 text-xs font-semibold text-slate-500 uppercase">Date</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-50">
+            {% for p in payments %}
+            <tr class="hover:bg-slate-50/50">
+                <td class="px-6 py-4 font-mono text-sm">{{ p.id }}</td>
+                <td class="px-4 py-4 font-mono">#{{ p.order_id }}</td>
+                <td class="px-4 py-4 text-right font-semibold">${{ p.amount }}</td>
+                <td class="px-4 py-4 capitalize">{{ p.method }}</td>
+                <td class="px-4 py-4">{{ p.status }}</td>
+                <td class="px-4 py-4 text-slate-500 text-sm">{{ p.created_at|slice:":19" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="px-6 py-8 text-slate-500 text-center">No payments yet</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

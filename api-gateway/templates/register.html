@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register — BookStore</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config = { theme: { extend: { colors: { primary: '#4f46e5', 'primary-dark': '#4338ca' } } } }</script>
+</head>
+<body class="bg-slate-100 min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+        <a href="/books/" class="inline-flex items-center gap-2 text-primary font-bold text-lg mb-8">BookStore</a>
+        <div class="bg-white rounded-2xl shadow-lg border border-slate-200 p-8">
+            <h1 class="text-2xl font-bold text-slate-900 mb-2">Đăng ký</h1>
+            {% if error %}
+            <div class="mb-4 p-3 rounded-lg bg-red-50 border border-red-100 text-red-700 text-sm">{{ error }}</div>
+            {% endif %}
+            {% if success %}
+            <div class="mb-4 p-3 rounded-lg bg-green-50 border border-green-100 text-green-700 text-sm">{{ success }}</div>
+            <a href="{% url 'login' %}" class="block w-full bg-primary text-white text-center font-medium py-2.5 rounded-xl hover:bg-primary-dark">Đi tới Đăng nhập</a>
+            {% else %}
+            <form method="post" action="{% url 'register' %}" class="space-y-4">
+                {% csrf_token %}
+                <div>
+                    <label for="name" class="block text-sm font-medium text-slate-700 mb-1">Name</label>
+                    <input type="text" id="name" name="name" required class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/40" placeholder="Your name" />
+                </div>
+                <div>
+                    <label for="email" class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                    <input type="email" id="email" name="email" required class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/40" placeholder="you@example.com" />
+                </div>
+                <div>
+                    <label for="password" class="block text-sm font-medium text-slate-700 mb-1">Password</label>
+                    <input type="password" id="password" name="password" required class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/40" placeholder="••••••••" />
+                </div>
+                <button type="submit" class="w-full bg-primary text-white font-medium py-2.5 rounded-xl hover:bg-primary-dark transition-colors">Register</button>
+            </form>
+            <p class="mt-4 text-center text-slate-500 text-sm">Đã có tài khoản? <a href="{% url 'login' %}" class="text-primary font-medium hover:underline">Đăng nhập</a></p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

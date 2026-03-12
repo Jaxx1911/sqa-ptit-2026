@@ -53,12 +53,27 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'order_service.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+import os
+
+_db_engine = os.environ.get("DB_ENGINE")
+if _db_engine == "postgresql":
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.environ.get("DB_NAME", "order_db"),
+            "USER": os.environ.get("DB_USER", "postgres"),
+            "PASSWORD": os.environ.get("DB_PASSWORD", "postgres"),
+            "HOST": os.environ.get("DB_HOST", ""),
+            "PORT": os.environ.get("DB_PORT", "5432"),
+        }
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {

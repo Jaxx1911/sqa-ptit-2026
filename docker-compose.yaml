@@ -1,42 +1,219 @@
 services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - ./postgres-init/init-multiple-dbs.sql:/docker-entrypoint-initdb.d/01-init-databases.sql
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 2s
+      timeout: 5s
+      retries: 10
+
+  mysql:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - ./mysql-init/init-databases.sql:/docker-entrypoint-initdb.d/init-databases.sql
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 2s
+      timeout: 5s
+      retries: 10
+
   customer-service:
     build: ./customer-service
     ports:
       - "8001:8000"
+    environment:
+      DB_ENGINE: postgresql
+      DB_NAME: customer_db
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_HOST: postgres
+      DB_PORT: "5432"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      cart-service:
+        condition: service_started
+
+  staff-service:
+    build: ./staff-service
+    ports:
+      - "8007:8000"
+    environment:
+      DB_ENGINE: postgresql
+      DB_NAME: staff_db
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_HOST: postgres
+      DB_PORT: "5432"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  manager-service:
+    build: ./manager-service
+    ports:
+      - "8008:8000"
+    environment:
+      DB_ENGINE: postgresql
+      DB_NAME: manager_db
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_HOST: postgres
+      DB_PORT: "5432"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   book-service:
     build: ./book-service
     ports:
       - "8002:8000"
+    environment:
+      DB_ENGINE: mysql
+      DB_NAME: book_db
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_HOST: mysql
+      DB_PORT: "3306"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
   cart-service:
     build: ./cart-service
     ports:
       - "8003:8000"
+    environment:
+      DB_ENGINE: mysql
+      DB_NAME: cart_db
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_HOST: mysql
+      DB_PORT: "3306"
     depends_on:
-      - book-service
+      mysql:
+        condition: service_healthy
+      book-service:
+        condition: service_started
+
+  catalog-service:
+    build: ./catalog-service
+    ports:
+      - "8009:8000"
+    environment:
+      DB_ENGINE: mysql
+      DB_NAME: catalog_db
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_HOST: mysql
+      DB_PORT: "3306"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  comment-rate-service:
+    build: ./comment-rate-service
+    ports:
+      - "8010:8000"
+    environment:
+      DB_ENGINE: mysql
+      DB_NAME: comment_rate_db
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_HOST: mysql
+      DB_PORT: "3306"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
   order-service:
     build: ./order-service
     ports:
       - "8004:8000"
+    environment:
+      DB_ENGINE: postgresql
+      DB_NAME: order_db
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_HOST: postgres
+      DB_PORT: "5432"
     depends_on:
-      - cart-service
-      - book-service
-      - pay-service
-      - ship-service
+      postgres:
+        condition: service_healthy
+      cart-service:
+        condition: service_started
+      book-service:
+        condition: service_started
+      pay-service:
+        condition: service_started
+      ship-service:
+        condition: service_started
+
   pay-service:
     build: ./pay-service
     ports:
       - "8005:8000"
+    environment:
+      DB_ENGINE: postgresql
+      DB_NAME: pay_db
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_HOST: postgres
+      DB_PORT: "5432"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   ship-service:
     build: ./ship-service
     ports:
       - "8006:8000"
+    environment:
+      DB_ENGINE: postgresql
+      DB_NAME: ship_db
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_HOST: postgres
+      DB_PORT: "5432"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  recommender-ai-service:
+    build: ./recommender-ai-service
+    ports:
+      - "8011:8000"
+    environment:
+      COMMENT_RATE_SERVICE_URL: http://comment-rate-service:8000
+      BOOK_SERVICE_URL: http://book-service:8000
+    depends_on:
+      - comment-rate-service
+      - book-service
+
   api-gateway:
     build: ./api-gateway
     ports:
       - "8000:8000"
     depends_on:
+      - customer-service
+      - staff-service
+      - manager-service
       - book-service
       - cart-service
       - order-service
       - pay-service
       - ship-service
+      - catalog-service
+      - comment-rate-service
+      - recommender-ai-service

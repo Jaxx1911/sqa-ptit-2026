@@ -1,0 +1,6 @@
+CREATE DATABASE customer_db;
+CREATE DATABASE order_db;
+CREATE DATABASE pay_db;
+CREATE DATABASE ship_db;
+CREATE DATABASE staff_db;
+CREATE DATABASE manager_db;
