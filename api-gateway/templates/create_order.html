@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block title %}BookStore — Checkout{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-slate-900">Checkout</h1>
+    <p class="text-slate-500 mt-1">Customer #{{ customer_id }}</p>
+</div>
+
+{% if error %}
+<div class="bg-red-50 border border-red-200 text-red-700 rounded-xl px-5 py-4 mb-6 flex items-center gap-3">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+    </svg>
+    <span class="font-medium">{{ error }}</span>
+</div>
+{% endif %}
+
+<div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+    <div class="lg:col-span-3">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-100">
+                <h2 class="font-semibold text-slate-900">Order Items</h2>
+            </div>
+            {% if items %}
+            <table class="w-full">
+                <thead>
+                    <tr class="bg-slate-50 border-b border-slate-100">
+                        <th class="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Book</th>
+                        <th class="text-center px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Qty</th>
+                        <th class="text-right px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50">
+                    {% for item in items %}
+                    <tr>
+                        <td class="px-6 py-3">
+                            <p class="font-medium text-slate-900 text-sm">{{ item.title }}</p>
+                            <p class="text-xs text-slate-500">{{ item.author }}</p>
+                        </td>
+                        <td class="px-4 py-3 text-center text-sm text-slate-600">{{ item.quantity }}</td>
+                        <td class="px-6 py-3 text-right font-semibold text-slate-900">${{ item.subtotal }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr class="border-t-2 border-slate-200 bg-slate-50">
+                        <td colspan="2" class="px-6 py-4 font-semibold text-slate-700">Total</td>
+                        <td class="px-6 py-4 text-right text-xl font-bold text-indigo-600">${{ total }}</td>
+                    </tr>
+                </tfoot>
+            </table>
+            {% else %}
+            <div class="px-6 py-8 text-center text-slate-400">Your cart is empty.</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="lg:col-span-2">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+            <h2 class="font-semibold text-slate-900 mb-6">Payment &amp; Shipping</h2>
+            <form action="/orders/create/{{ customer_id }}/" method="post" class="space-y-5">
+                {% csrf_token %}
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Payment Method</label>
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-3 p-3 border border-slate-200 rounded-xl cursor-pointer hover:border-indigo-400 hover:bg-indigo-50/40 transition-all">
+                            <input type="radio" name="payment_method" value="credit_card" checked class="accent-indigo-600" />
+                            <div>
+                                <p class="text-sm font-medium text-slate-800">Credit Card</p>
+                                <p class="text-xs text-slate-500">Visa, Mastercard, Amex</p>
+                            </div>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 border border-slate-200 rounded-xl cursor-pointer hover:border-indigo-400 hover:bg-indigo-50/40 transition-all">
+                            <input type="radio" name="payment_method" value="cod" class="accent-indigo-600" />
+                            <div>
+                                <p class="text-sm font-medium text-slate-800">Cash on Delivery</p>
+                                <p class="text-xs text-slate-500">Pay when your order arrives</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Shipping Method</label>
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-3 p-3 border border-slate-200 rounded-xl cursor-pointer hover:border-indigo-400 hover:bg-indigo-50/40 transition-all">
+                            <input type="radio" name="shipping_method" value="standard" checked class="accent-indigo-600" />
+                            <div>
+                                <p class="text-sm font-medium text-slate-800">Standard Shipping</p>
+                                <p class="text-xs text-slate-500">5-7 business days &mdash; Free</p>
+                            </div>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 border border-slate-200 rounded-xl cursor-pointer hover:border-indigo-400 hover:bg-indigo-50/40 transition-all">
+                            <input type="radio" name="shipping_method" value="express" class="accent-indigo-600" />
+                            <div>
+                                <p class="text-sm font-medium text-slate-800">Express Shipping</p>
+                                <p class="text-xs text-slate-500">1-2 business days &mdash; $9.99</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                {% if items %}
+                <button type="submit"
+                        class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-xl hover:bg-indigo-700 transition-colors shadow-sm">
+                    Place Order &mdash; ${{ total }}
+                </button>
+                {% else %}
+                <a href="/books/"
+                   class="block w-full bg-indigo-600 text-white font-semibold py-3 rounded-xl text-center hover:bg-indigo-700 transition-colors">
+                    Add Books to Cart First
+                </a>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

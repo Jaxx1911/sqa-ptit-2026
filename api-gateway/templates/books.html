@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}BookStore — Catalog{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-8">
+    <div>
+        <h1 class="text-3xl font-bold text-slate-900">Book Catalog</h1>
+        <p class="text-slate-500 mt-1">Discover your next great read</p>
+    </div>
+    <a href="/cart/{{ customer_id }}/"
+       class="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-indigo-700 transition-colors shadow-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+        View Cart
+    </a>
+</div>
+
+{% if books %}
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    {% for book in books %}
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col hover:shadow-md transition-shadow">
+        <div class="bg-gradient-to-br from-indigo-100 to-purple-100 h-36 flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.966 8.966 0 00-6 2.292m0-14.25v14.25" />
+            </svg>
+        </div>
+        <div class="p-4 flex-1 flex flex-col gap-3">
+            <div>
+                <h2 class="font-semibold text-slate-900 leading-snug">{{ book.title }}</h2>
+                <p class="text-sm text-slate-500 mt-0.5">by {{ book.author }}</p>
+            </div>
+            <div class="flex items-center justify-between">
+                <span class="text-lg font-bold text-indigo-600">${{ book.price }}</span>
+                {% if book.stock > 5 %}
+                <span class="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700">{{ book.stock }} in stock</span>
+                {% elif book.stock > 0 %}
+                <span class="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">{{ book.stock }} left</span>
+                {% else %}
+                <span class="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-600">Out of stock</span>
+                {% endif %}
+            </div>
+            {% if book.stock > 0 %}
+            <form action="/cart/add/" method="post" class="flex items-center gap-2 mt-auto">
+                {% csrf_token %}
+                <input type="hidden" name="book_id" value="{{ book.id }}" />
+                <input type="number" name="quantity" value="1" min="1" max="{{ book.stock }}"
+                       class="w-16 text-sm border border-slate-200 rounded-lg px-2 py-1.5 text-center focus:outline-none focus:ring-2 focus:ring-indigo-300" />
+                <button type="submit"
+                        class="flex-1 bg-indigo-600 text-white text-sm font-medium py-1.5 rounded-xl hover:bg-indigo-700 transition-colors">
+                    Add to Cart
+                </button>
+            </form>
+            {% else %}
+            <button disabled class="w-full bg-slate-100 text-slate-400 text-sm font-medium py-1.5 rounded-xl cursor-not-allowed mt-auto">
+                Out of Stock
+            </button>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-16 text-center">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 mx-auto text-slate-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.966 8.966 0 00-6 2.292m0-14.25v14.25" />
+    </svg>
+    <p class="text-slate-500 text-lg">No books available at the moment.</p>
+</div>
+{% endif %}
+{% endblock %}
